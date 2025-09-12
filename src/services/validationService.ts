@@ -215,6 +215,7 @@ class ValidationService {
           previousData.on_chain_liquidity_usd,
         burned_supply_usd: 0, // Will be calculated below
         treasury_supply_usd: 0, // Will be calculated below
+        updated_at: new Date().toISOString(),
       };
 
       // Recalculate USD values with 2 decimal places

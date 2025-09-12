@@ -13,13 +13,23 @@ class StorageService {
   async storeData(data: DailyTokenomicsData): Promise<FetchResult<string>> {
     try {
       const fileName = this.getFileName(data.date);
-      const jsonData = JSON.stringify(data, null, 2);
 
-      console.log(`Storing data for ${data.date} to blob storage`);
+      // Add timestamp if not already present
+      const dataWithTimestamp = {
+        ...data,
+        updated_at: data.updated_at || new Date().toISOString(),
+      };
+
+      const jsonData = JSON.stringify(dataWithTimestamp, null, 2);
+
+      console.log(
+        `Storing data for ${data.date} to blob storage with timestamp ${dataWithTimestamp.updated_at}`
+      );
 
       const blob = await put(fileName, jsonData, {
         access: "public",
         addRandomSuffix: false,
+        allowOverwrite: true,
       });
 
       console.log(`Data stored successfully at: ${blob.url}`);

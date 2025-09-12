@@ -187,6 +187,7 @@ class DataFetcher {
         Math.round(parseFloat(burnedSupply) * price * 100) / 100,
       treasury_supply_usd:
         Math.round(parseFloat(treasurySupply) * price * 100) / 100,
+      updated_at: new Date().toISOString(),
     };
 
     return { success: true, data };

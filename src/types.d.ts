@@ -12,6 +12,7 @@ interface DailyTokenomicsData {
   on_chain_liquidity_usd: number;
   burned_supply_usd: number;
   treasury_supply_usd: number;
+  updated_at?: string; // ISO timestamp of when this data was stored/updated (optional for backward compatibility)
 }
 
 interface TokenomicsResponse {
@@ -27,7 +28,8 @@ interface TokenomicsResponse {
   };
   meta: {
     token: TokenConfig;
-    last_updated: string;
+    last_updated: string; // Date of the most recent data point
+    data_last_updated: string; // ISO timestamp of when data was actually fetched/stored
     total_records: number;
     days_requested: number;
   };

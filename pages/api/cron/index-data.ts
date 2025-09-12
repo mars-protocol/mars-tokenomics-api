@@ -42,7 +42,13 @@ export default async function handler(
   }
 
   // Check if we already have data for today
-  const dataExists = await storageService.dataExistsForDate(today);
+  let dataExists = false;
+  try {
+    dataExists = await storageService.dataExistsForDate(today);
+  } catch (error) {
+    console.error("Error checking if data exists:", error);
+    // Continue with dataExists = false
+  }
   const currentHour = new Date().getUTCHours();
 
   if (dataExists) {
@@ -62,6 +68,7 @@ export default async function handler(
 
     if (!fetchResult.success) {
       console.error("Failed to fetch data:", fetchResult.error);
+      console.error("Full fetch result:", JSON.stringify(fetchResult, null, 2));
 
       // Try to create fallback data
       console.log("Attempting to create fallback data...");
@@ -106,7 +113,14 @@ export default async function handler(
     console.log("Data fetched successfully, validating...");
 
     // Validate the data
-    const previousData = await validationService.getValidationContext(today);
+    let previousData = null;
+    try {
+      previousData = await validationService.getValidationContext(today);
+    } catch (error) {
+      console.warn("Could not fetch previous data for validation:", error);
+      // Continue with previousData = null
+    }
+
     const validationResult = await validationService.validateData(
       currentData,
       previousData || undefined
@@ -194,7 +208,13 @@ export default async function handler(
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+
     console.error("Unexpected error during indexing:", errorMessage);
+    if (errorStack) {
+      console.error("Error stack:", errorStack);
+    }
+    console.error("Full error object:", error);
 
     return res.status(500).json({
       success: false,
