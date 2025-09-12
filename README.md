@@ -24,18 +24,28 @@ The API collects data from the following sources:
 
 ## API Endpoints
 
+**Base URL:** `https://tokenomics.marsprotocol.io`
+
 ### GET `/api/tokenomics`
 
 Returns Mars Protocol tokenomics data.
 
 **Query Parameters:**
+
 - `days` (optional): Number of days of data to return
   - `30` (default): Last 30 days
   - `90`: Last 90 days
   - `180`: Last 180 days
   - `all`: All available data
 
+**Example:**
+
+```bash
+curl "https://tokenomics.marsprotocol.io/api/tokenomics?days=30"
+```
+
 **Response Format:**
+
 ```json
 {
   "data": {
@@ -77,27 +87,32 @@ Internal endpoint for daily data indexing (triggered by Vercel cron).
 ## Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd mars-tokenomics-api
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp env.example .env.local
    ```
-   
+
    Add your Vercel Blob storage token:
+
    ```
    BLOB_READ_WRITE_TOKEN=your_vercel_blob_token
    ```
 
 4. **Run development server**
+
    ```bash
    npm run dev
    ```
@@ -112,11 +127,13 @@ Internal endpoint for daily data indexing (triggered by Vercel cron).
 ### Vercel Deployment
 
 1. **Connect to Vercel**
+
    ```bash
    vercel
    ```
 
 2. **Set environment variables in Vercel dashboard**
+
    - `BLOB_READ_WRITE_TOKEN`: Your Vercel Blob storage token
 
 3. **Deploy**
@@ -129,7 +146,9 @@ The cron job will automatically start running daily at 2 AM UTC once deployed.
 ## Configuration
 
 ### Token Configuration
+
 The API is configured for the MARS token on Neutron:
+
 ```typescript
 {
   symbol: 'MARS',
@@ -139,19 +158,23 @@ The API is configured for the MARS token on Neutron:
 ```
 
 ### Validation Thresholds
+
 Data validation includes checks for:
+
 - Price range: $0.0001 - $1000
 - Supply range: 1M - 100B tokens
 - Maximum daily change: 50%
 - USD value calculation consistency
 
 ### Wallet Addresses
+
 - **Burn Address**: `neutron1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhufaa6`
 - **Treasury Address**: `neutron1yv9veqnaxt3xwafnfdtr9r995m50ad6039lduux5huay6nhnef8sapq3zp`
 
 ## Data Storage
 
 The API uses Vercel Blob storage for data persistence:
+
 - Each day's data is stored as a separate JSON file
 - Files are named with the pattern: `daily-data-YYYY-MM-DD.json`
 - Data is publicly accessible for fast retrieval
@@ -169,6 +192,7 @@ The API implements comprehensive error handling:
 ## Testing
 
 Run the test suite:
+
 ```bash
 # Run all tests
 npm test
@@ -181,6 +205,7 @@ npm test -- --coverage
 ```
 
 Tests cover:
+
 - Data fetching from all external APIs
 - Data validation logic
 - Storage operations
@@ -190,6 +215,7 @@ Tests cover:
 ## Monitoring
 
 The API provides detailed logging for monitoring:
+
 - Daily indexing results
 - Data validation warnings and errors
 - API response times

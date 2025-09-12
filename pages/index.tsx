@@ -62,7 +62,7 @@ export default function Home() {
             display: 'block',
             marginBottom: '1rem'
           }}>
-            GET /api/tokenomics?days={'{30|90|180|all}'}
+            GET https://tokenomics.marsprotocol.io/api/tokenomics?days={'{30|90|180|all}'}
           </code>
 
           <h3 style={{ color: '#555' }}>Data Sources</h3>
