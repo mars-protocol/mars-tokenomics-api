@@ -43,9 +43,7 @@ describe('ValidationService', () => {
       const result = await validationService.validateData(data);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain(
-        expect.stringContaining('Price too high')
-      );
+      expect(result.errors.some(error => error.includes('Price too high'))).toBe(true);
     });
 
     it('should fail validation for total supply too low', async () => {
