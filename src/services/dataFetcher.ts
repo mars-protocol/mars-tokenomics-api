@@ -1,0 +1,224 @@
+// Types are now globally available from src/types.d.ts
+import { 
+  ENDPOINTS, 
+  WALLETS, 
+  COINGECKO_MARS_ID, 
+  MARS_TOKEN, 
+  CHAIN_ID,
+  RETRY_CONFIG 
+} from '../config/constants';
+
+class DataFetcher {
+  private async fetchWithRetry<T>(
+    url: string, 
+    options: RequestInit = {},
+    parser: (response: Response) => Promise<T> = (r) => r.json()
+  ): Promise<FetchResult<T>> {
+    let lastError: string = '';
+    
+    for (let attempt = 1; attempt <= RETRY_CONFIG.MAX_RETRIES; attempt++) {
+      try {
+        console.log(`Fetching ${url} (attempt ${attempt}/${RETRY_CONFIG.MAX_RETRIES})`);
+        
+        const response = await fetch(url, {
+          ...options,
+          headers: {
+            'User-Agent': 'mars-tokenomics-api/1.0.0',
+            'Accept': 'application/json',
+            ...options.headers,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await parser(response);
+        return { success: true, data };
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`Attempt ${attempt} failed for ${url}:`, lastError);
+        
+        if (attempt < RETRY_CONFIG.MAX_RETRIES) {
+          const delay = RETRY_CONFIG.RETRY_DELAY * Math.pow(RETRY_CONFIG.BACKOFF_MULTIPLIER, attempt - 1);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+
+    return { success: false, error: lastError };
+  }
+
+  async fetchTotalSupply(): Promise<FetchResult<string>> {
+    const result = await this.fetchWithRetry<string>(
+      ENDPOINTS.MARS_TOTAL_SUPPLY,
+      {},
+      async (response) => {
+        const text = await response.text();
+        return text.trim();
+      }
+    );
+    
+    if (result.success && result.data) {
+      // Data is already normalized according to the requirements
+      return result;
+    }
+    
+    return result;
+  }
+
+  async fetchCirculatingSupply(): Promise<FetchResult<string>> {
+    const result = await this.fetchWithRetry<string>(
+      ENDPOINTS.MARS_CIRCULATING_SUPPLY,
+      {},
+      async (response) => {
+        const text = await response.text();
+        return text.trim();
+      }
+    );
+    
+    if (result.success && result.data) {
+      // Data is already normalized according to the requirements
+      return result;
+    }
+    
+    return result;
+  }
+
+  async fetchWalletBalance(address: string): Promise<FetchResult<string>> {
+    const url = `${ENDPOINTS.NEUTRON_REST}/cosmos/bank/v1beta1/balances/${address}`;
+    const result = await this.fetchWithRetry<WalletBalanceResponse>(url);
+    
+    if (result.success && result.data) {
+      const marsBalance = result.data.balances.find(
+        balance => balance.denom === MARS_TOKEN.denom
+      );
+      
+      if (marsBalance) {
+        // Normalize by shifting by decimals
+        const normalizedAmount = this.normalizeAmount(marsBalance.amount, MARS_TOKEN.decimals);
+        return { success: true, data: normalizedAmount };
+      } else {
+        return { success: true, data: '0' };
+      }
+    }
+    
+    return { success: false, error: result.error };
+  }
+
+  async fetchBurnedSupply(): Promise<FetchResult<string>> {
+    return this.fetchWalletBalance(WALLETS.BURN_ADDRESS);
+  }
+
+  async fetchTreasurySupply(): Promise<FetchResult<string>> {
+    return this.fetchWalletBalance(WALLETS.TREASURY_ADDRESS);
+  }
+
+  async fetchMarsPrice(): Promise<FetchResult<number>> {
+    const url = `${ENDPOINTS.COINGECKO_BASE}/coins/${COINGECKO_MARS_ID}`;
+    
+    const result = await this.fetchWithRetry<CoinGeckoResponse>(url);
+    
+    if (result.success && result.data?.market_data?.current_price?.usd) {
+      return { 
+        success: true, 
+        data: result.data.market_data.current_price.usd 
+      };
+    }
+    
+    return { 
+      success: false, 
+      error: result.error || 'Price data not available' 
+    };
+  }
+
+  async fetchOnChainLiquidity(): Promise<FetchResult<number>> {
+    const url = `${ENDPOINTS.ASTROPORT_POOLS}?chainId=${CHAIN_ID}`;
+    const result = await this.fetchWithRetry<AstroportPool[]>(url);
+    
+    if (result.success && result.data) {
+      const marsLiquidityUSD = result.data
+        .filter(pool => 
+          pool.assets.some(asset => 
+            asset.denom === MARS_TOKEN.denom || 
+            asset.symbol === MARS_TOKEN.symbol
+          )
+        )
+        .reduce((total, pool) => total + pool.totalLiquidityUSD, 0);
+      
+      return { success: true, data: marsLiquidityUSD };
+    }
+    
+    return { success: false, error: result.error };
+  }
+
+  async fetchAllData(): Promise<FetchResult<DailyTokenomicsData>> {
+    const date = new Date().toISOString().split('T')[0];
+    
+    console.log(`Fetching all tokenomics data for ${date}`);
+    
+    // Fetch all data concurrently
+    const [
+      totalSupplyResult,
+      circulatingSupplyResult,
+      burnedSupplyResult,
+      treasurySupplyResult,
+      priceResult,
+      liquidityResult,
+    ] = await Promise.all([
+      this.fetchTotalSupply(),
+      this.fetchCirculatingSupply(),
+      this.fetchBurnedSupply(),
+      this.fetchTreasurySupply(),
+      this.fetchMarsPrice(),
+      this.fetchOnChainLiquidity(),
+    ]);
+
+    // Check for any failures
+    const failures: string[] = [];
+    if (!totalSupplyResult.success) failures.push(`Total supply: ${totalSupplyResult.error}`);
+    if (!circulatingSupplyResult.success) failures.push(`Circulating supply: ${circulatingSupplyResult.error}`);
+    if (!burnedSupplyResult.success) failures.push(`Burned supply: ${burnedSupplyResult.error}`);
+    if (!treasurySupplyResult.success) failures.push(`Treasury supply: ${treasurySupplyResult.error}`);
+    if (!priceResult.success) failures.push(`Price: ${priceResult.error}`);
+    if (!liquidityResult.success) failures.push(`Liquidity: ${liquidityResult.error}`);
+
+    if (failures.length > 0) {
+      return { 
+        success: false, 
+        error: `Failed to fetch: ${failures.join(', ')}` 
+      };
+    }
+
+    const price = priceResult.data!;
+    const totalSupply = totalSupplyResult.data!;
+    const circulatingSupply = circulatingSupplyResult.data!;
+    const burnedSupply = burnedSupplyResult.data!;
+    const treasurySupply = treasurySupplyResult.data!;
+
+    const data: DailyTokenomicsData = {
+      date,
+      total_supply: totalSupply,
+      circulating_supply: circulatingSupply,
+      burned_supply: burnedSupply,
+      treasury_supply: treasurySupply,
+      price_usd: price,
+      on_chain_liquidity_usd: liquidityResult.data!,
+      total_supply_usd: parseFloat(totalSupply) * price,
+      circulating_supply_usd: parseFloat(circulatingSupply) * price,
+      burned_supply_usd: parseFloat(burnedSupply) * price,
+      treasury_supply_usd: parseFloat(treasurySupply) * price,
+    };
+
+    return { success: true, data };
+  }
+
+  private normalizeAmount(amount: string, decimals: number): string {
+    const amountBigInt = BigInt(amount);
+    const divisor = BigInt(10 ** decimals);
+    const normalized = amountBigInt / divisor;
+    return normalized.toString();
+  }
+}
+
+export const dataFetcher = new DataFetcher();

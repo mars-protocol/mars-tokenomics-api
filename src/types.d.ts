@@ -1,0 +1,92 @@
+interface TokenConfig {
+  symbol: string;
+  denom: string;
+  decimals: number;
+}
+
+interface DailyTokenomicsData {
+  date: string;
+  total_supply: string;
+  circulating_supply: string;
+  burned_supply: string;
+  treasury_supply: string;
+  price_usd: number;
+  on_chain_liquidity_usd: number;
+  total_supply_usd: number;
+  circulating_supply_usd: number;
+  burned_supply_usd: number;
+  treasury_supply_usd: number;
+}
+
+interface TokenomicsResponse {
+  data: {
+    total_supply: Array<{ date: string; value: string; value_usd?: number }>;
+    circulating_supply: Array<{ date: string; value: string; value_usd?: number }>;
+    burned_supply: Array<{ date: string; value: string; value_usd?: number }>;
+    treasury_supply: Array<{ date: string; value: string; value_usd?: number }>;
+    price_usd: Array<{ date: string; value: number }>;
+    on_chain_liquidity_usd: Array<{ date: string; value: number }>;
+  };
+  meta: {
+    token: TokenConfig;
+    last_updated: string;
+    total_records: number;
+    days_requested: number;
+  };
+}
+
+interface WalletBalance {
+  denom: string;
+  amount: string;
+}
+
+interface WalletBalanceResponse {
+  balances: WalletBalance[];
+  pagination: {
+    next_key: string | null;
+    total: string;
+  };
+}
+
+interface AstroportPool {
+  chainId: string;
+  poolAddress: string;
+  poolType: string;
+  assets: Array<{
+    amount: string;
+    denom: string;
+    symbol: string;
+    description: string;
+    decimals: number;
+    priceUSD: number;
+  }>;
+  totalLiquidityUSD: number;
+  dayVolumeUSD: number;
+  dayLpFeesUSD: number;
+}
+
+interface CoinGeckoResponse {
+  id: string;
+  symbol: string;
+  name: string;
+  market_data: {
+    current_price: {
+      usd: number;
+    };
+  };
+}
+
+interface DataValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+interface FetchResult<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  usedFallback?: boolean;
+}
+
+type DaysParam = '30' | '90' | '180' | 'all';

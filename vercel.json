@@ -1,0 +1,13 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/index-data",
+      "schedule": "0 2 * * *"
+    }
+  ],
+  "functions": {
+    "pages/api/cron/index-data.ts": {
+      "maxDuration": 300
+    }
+  }
+}
