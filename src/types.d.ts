@@ -6,22 +6,16 @@ interface TokenConfig {
 
 interface DailyTokenomicsData {
   date: string;
-  total_supply: string;
-  circulating_supply: string;
   burned_supply: string;
   treasury_supply: string;
   price_usd: number;
   on_chain_liquidity_usd: number;
-  total_supply_usd: number;
-  circulating_supply_usd: number;
   burned_supply_usd: number;
   treasury_supply_usd: number;
 }
 
 interface TokenomicsResponse {
   data: {
-    total_supply: Array<{ date: string; value: string; value_usd?: number }>;
-    circulating_supply: Array<{ date: string; value: string; value_usd?: number }>;
     burned_supply: Array<{ date: string; value: string; value_usd?: number }>;
     treasury_supply: Array<{ date: string; value: string; value_usd?: number }>;
     price_usd: Array<{ date: string; value: number }>;
@@ -89,4 +83,4 @@ interface FetchResult<T> {
   usedFallback?: boolean;
 }
 
-type DaysParam = '30' | '90' | '180' | 'all';
+type DaysParam = "30" | "90" | "180" | "all";

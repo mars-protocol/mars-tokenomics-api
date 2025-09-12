@@ -15,12 +15,12 @@ A lightweight API that indexes Mars Protocol tokenomics data daily and serves it
 
 The API collects data from the following sources:
 
-- **Total Supply**: `https://status.marsprotocol.io/ts` (pre-normalized)
-- **Circulating Supply**: `https://status.marsprotocol.io/cs` (pre-normalized)
-- **Burned Supply**: Neutron blockchain wallet balance of burn address
-- **Treasury Supply**: Neutron blockchain wallet balance of treasury address
+- **Burned Supply**: Neutron blockchain wallet balance of burn address (normalized)
+- **Treasury Supply**: Neutron blockchain wallet balance of treasury address (normalized)
 - **Price**: CoinGecko API for MARS token price
 - **On-Chain Liquidity**: Astroport pools containing MARS tokens
+
+> **Note**: Total and circulating supply data are available through other Mars Protocol services and are not included in this API to maintain reliability.
 
 ## API Endpoints
 
@@ -49,23 +49,32 @@ curl "https://tokenomics.marsprotocol.io/api/tokenomics?days=30"
 ```json
 {
   "data": {
-    "total_supply": [
+    "burned_supply": [
       {
         "date": "2025-09-12",
-        "value": "1000000000",
-        "value_usd": 150000000
+        "value": "50000000",
+        "value_usd": 7500000
       }
     ],
-    "circulating_supply": [...],
-    "burned_supply": [...],
-    "treasury_supply": [...],
+    "treasury_supply": [
+      {
+        "date": "2025-09-12",
+        "value": "150000000",
+        "value_usd": 22500000
+      }
+    ],
     "price_usd": [
       {
         "date": "2025-09-12",
         "value": 0.15
       }
     ],
-    "on_chain_liquidity_usd": [...]
+    "on_chain_liquidity_usd": [
+      {
+        "date": "2025-09-12",
+        "value": 100000
+      }
+    ]
   },
   "meta": {
     "token": {

@@ -67,50 +67,6 @@ class DataFetcher {
     return { success: false, error: lastError };
   }
 
-  async fetchTotalSupply(): Promise<FetchResult<string>> {
-    const result = await this.fetchWithRetry<string>(
-      ENDPOINTS.MARS_TOTAL_SUPPLY,
-      {
-        headers: {
-          Accept: "text/plain",
-        },
-      },
-      async (response) => {
-        const text = await response.text();
-        return text.trim();
-      }
-    );
-
-    if (result.success && result.data) {
-      // Data is already normalized according to the requirements
-      return result;
-    }
-
-    return result;
-  }
-
-  async fetchCirculatingSupply(): Promise<FetchResult<string>> {
-    const result = await this.fetchWithRetry<string>(
-      ENDPOINTS.MARS_CIRCULATING_SUPPLY,
-      {
-        headers: {
-          Accept: "text/plain",
-        },
-      },
-      async (response) => {
-        const text = await response.text();
-        return text.trim();
-      }
-    );
-
-    if (result.success && result.data) {
-      // Data is already normalized according to the requirements
-      return result;
-    }
-
-    return result;
-  }
-
   async fetchWalletBalance(address: string): Promise<FetchResult<string>> {
     const url = `${ENDPOINTS.NEUTRON_REST}/cosmos/bank/v1beta1/balances/${address}`;
     const result = await this.fetchWithRetry<WalletBalanceResponse>(url);
@@ -189,15 +145,11 @@ class DataFetcher {
 
     // Fetch all data concurrently
     const [
-      totalSupplyResult,
-      circulatingSupplyResult,
       burnedSupplyResult,
       treasurySupplyResult,
       priceResult,
       liquidityResult,
     ] = await Promise.all([
-      this.fetchTotalSupply(),
-      this.fetchCirculatingSupply(),
       this.fetchBurnedSupply(),
       this.fetchTreasurySupply(),
       this.fetchMarsPrice(),
@@ -206,10 +158,6 @@ class DataFetcher {
 
     // Check for any failures
     const failures: string[] = [];
-    if (!totalSupplyResult.success)
-      failures.push(`Total supply: ${totalSupplyResult.error}`);
-    if (!circulatingSupplyResult.success)
-      failures.push(`Circulating supply: ${circulatingSupplyResult.error}`);
     if (!burnedSupplyResult.success)
       failures.push(`Burned supply: ${burnedSupplyResult.error}`);
     if (!treasurySupplyResult.success)
@@ -226,21 +174,15 @@ class DataFetcher {
     }
 
     const price = priceResult.data!;
-    const totalSupply = totalSupplyResult.data!;
-    const circulatingSupply = circulatingSupplyResult.data!;
     const burnedSupply = burnedSupplyResult.data!;
     const treasurySupply = treasurySupplyResult.data!;
 
     const data: DailyTokenomicsData = {
       date,
-      total_supply: totalSupply,
-      circulating_supply: circulatingSupply,
       burned_supply: burnedSupply,
       treasury_supply: treasurySupply,
       price_usd: price,
       on_chain_liquidity_usd: liquidityResult.data!,
-      total_supply_usd: parseFloat(totalSupply) * price,
-      circulating_supply_usd: parseFloat(circulatingSupply) * price,
       burned_supply_usd: parseFloat(burnedSupply) * price,
       treasury_supply_usd: parseFloat(treasurySupply) * price,
     };

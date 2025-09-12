@@ -1,27 +1,27 @@
 // Types are now globally available from src/types.d.ts
 
 export const MARS_TOKEN: TokenConfig = {
-  symbol: 'MARS',
-  denom: 'factory/neutron1ndu2wvkrxtane8se2tr48gv7nsm46y5gcqjhux/MARS',
+  symbol: "MARS",
+  denom: "factory/neutron1ndu2wvkrxtane8se2tr48gv7nsm46y5gcqjhux/MARS",
   decimals: 6,
 };
 
-export const CHAIN_ID = 'neutron-1';
+export const CHAIN_ID = "neutron-1";
 
 export const ENDPOINTS = {
-  NEUTRON_REST: 'https://rest-lb.neutron.org',
-  MARS_TOTAL_SUPPLY: 'https://status.marsprotocol.io/ts',
-  MARS_CIRCULATING_SUPPLY: 'https://status.marsprotocol.io/cs',
-  COINGECKO_BASE: 'https://api.coingecko.com/api/v3',
-  ASTROPORT_POOLS: 'https://app.astroport.fi/api/pools',
+  NEUTRON_REST: "https://rest-lb.neutron.org",
+  COINGECKO_BASE: "https://api.coingecko.com/api/v3",
+  ASTROPORT_POOLS: "https://app.astroport.fi/api/pools",
 } as const;
 
 export const WALLETS = {
-  BURN_ADDRESS: 'neutron1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhufaa6',
-  TREASURY_ADDRESS: 'neutron1yv9veqnaxt3xwafnfdtr9r995m50ad6039lduux5huay6nhnef8sapq3zp',
+  BURN_ADDRESS: "neutron1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhufaa6",
+  TREASURY_ADDRESS:
+    "neutron1yv9veqnaxt3xwafnfdtr9r995m50ad6039lduux5huay6nhnef8sapq3zp",
 } as const;
 
-export const COINGECKO_MARS_ID = 'mars-protocol-a7fcbcfb-fd61-4017-92f0-7ee9f9cc6da3';
+export const COINGECKO_MARS_ID =
+  "mars-protocol-a7fcbcfb-fd61-4017-92f0-7ee9f9cc6da3";
 
 export const VALIDATION_THRESHOLDS = {
   MAX_DAILY_CHANGE_PERCENT: 50, // 50% max daily change
@@ -38,6 +38,6 @@ export const RETRY_CONFIG = {
 } as const;
 
 export const BLOB_CONFIG = {
-  CONTAINER_NAME: 'mars-tokenomics-data',
-  FILE_PREFIX: 'daily-data',
+  CONTAINER_NAME: "mars-tokenomics-data",
+  FILE_PREFIX: "daily-data",
 } as const;
