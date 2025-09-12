@@ -58,9 +58,9 @@ export default function Home() {
         >
           <h2 style={{ marginTop: 0, color: "#555" }}>API Overview</h2>
           <p style={{ color: "#666", lineHeight: "1.6" }}>
-            This API provides daily tokenomics data for the Mars Protocol token
-            (MARS) on the Neutron blockchain. Data is automatically indexed
-            daily and includes supply metrics, pricing, and liquidity
+            This API provides real-time tokenomics data for the Mars Protocol
+            token (MARS) on the Neutron blockchain. Data is automatically
+            updated hourly and includes supply metrics, pricing, and liquidity
             information.
           </p>
 
@@ -188,7 +188,7 @@ export default function Home() {
           }}
         >
           <p>
-            Data is updated daily at 2 AM UTC via automated indexing.
+            Data is updated hourly via automated indexing.
             <br />
             For more information, visit the{" "}
             <a

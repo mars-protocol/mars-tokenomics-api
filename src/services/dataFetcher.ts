@@ -181,10 +181,12 @@ class DataFetcher {
       date,
       burned_supply: burnedSupply,
       treasury_supply: treasurySupply,
-      price_usd: price,
-      on_chain_liquidity_usd: liquidityResult.data!,
-      burned_supply_usd: parseFloat(burnedSupply) * price,
-      treasury_supply_usd: parseFloat(treasurySupply) * price,
+      price_usd: price, // Keep full precision for price
+      on_chain_liquidity_usd: Math.round(liquidityResult.data! * 100) / 100,
+      burned_supply_usd:
+        Math.round(parseFloat(burnedSupply) * price * 100) / 100,
+      treasury_supply_usd:
+        Math.round(parseFloat(treasurySupply) * price * 100) / 100,
     };
 
     return { success: true, data };

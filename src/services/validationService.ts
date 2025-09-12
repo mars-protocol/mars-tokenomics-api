@@ -217,12 +217,13 @@ class ValidationService {
         treasury_supply_usd: 0, // Will be calculated below
       };
 
-      // Recalculate USD values
+      // Recalculate USD values with 2 decimal places
       const price = fallbackData.price_usd;
       fallbackData.burned_supply_usd =
-        parseFloat(fallbackData.burned_supply) * price;
+        Math.round(parseFloat(fallbackData.burned_supply) * price * 100) / 100;
       fallbackData.treasury_supply_usd =
-        parseFloat(fallbackData.treasury_supply) * price;
+        Math.round(parseFloat(fallbackData.treasury_supply) * price * 100) /
+        100;
 
       return {
         success: true,

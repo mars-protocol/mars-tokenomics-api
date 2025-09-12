@@ -1,10 +1,10 @@
 # Mars Protocol Tokenomics API
 
-A lightweight API that indexes Mars Protocol tokenomics data daily and serves it through low-latency endpoints. Built for deployment on Vercel with automatic daily data collection via cron jobs.
+A lightweight API that indexes Mars Protocol tokenomics data hourly and serves it through low-latency endpoints. Built for deployment on Vercel with automatic hourly data updates via cron jobs.
 
 ## Features
 
-- **Daily Data Indexing**: Automatically fetches and stores tokenomics data every day at 2 AM UTC
+- **Hourly Data Updates**: Automatically fetches and updates tokenomics data every hour
 - **Multiple Data Sources**: Integrates with Mars Protocol status endpoints, Neutron blockchain, CoinGecko, and Astroport
 - **Robust Error Handling**: Implements fallback mechanisms and data validation
 - **Low Latency**: Serves pre-processed data with appropriate caching headers
@@ -150,7 +150,7 @@ Internal endpoint for daily data indexing (triggered by Vercel cron).
    vercel --prod
    ```
 
-The cron job will automatically start running daily at 2 AM UTC once deployed.
+The cron job will automatically start running hourly once deployed.
 
 ## Configuration
 
