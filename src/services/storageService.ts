@@ -1,5 +1,5 @@
-import { put, list, head } from '@vercel/blob';
-import { BLOB_CONFIG } from '../config/constants';
+import { head, list, put } from "@vercel/blob";
+import { BLOB_CONFIG } from "../config/constants";
 
 class StorageService {
   private getFileName(date: string): string {
@@ -14,24 +14,25 @@ class StorageService {
     try {
       const fileName = this.getFileName(data.date);
       const jsonData = JSON.stringify(data, null, 2);
-      
+
       console.log(`Storing data for ${data.date} to blob storage`);
-      
+
       const blob = await put(fileName, jsonData, {
-        access: 'public',
+        access: "public",
         addRandomSuffix: false,
       });
 
       console.log(`Data stored successfully at: ${blob.url}`);
-      
+
       return {
         success: true,
         data: blob.url,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown storage error';
-      console.error('Failed to store data:', errorMessage);
-      
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown storage error";
+      console.error("Failed to store data:", errorMessage);
+
       return {
         success: false,
         error: errorMessage,
@@ -42,7 +43,7 @@ class StorageService {
   async getData(date: string): Promise<FetchResult<DailyTokenomicsData>> {
     try {
       const fileName = this.getFileName(date);
-      
+
       // Check if file exists
       try {
         await head(fileName);
@@ -55,21 +56,24 @@ class StorageService {
 
       // Fetch the data using the public URL
       const response = await fetch(`https://vercel.com/blob/${fileName}`);
-      
+
       if (!response.ok) {
-        throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch data: ${response.status} ${response.statusText}`
+        );
       }
 
       const data: DailyTokenomicsData = await response.json();
-      
+
       return {
         success: true,
         data,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown retrieval error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown retrieval error";
       console.error(`Failed to retrieve data for ${date}:`, errorMessage);
-      
+
       return {
         success: false,
         error: errorMessage,
@@ -87,27 +91,30 @@ class StorageService {
       if (blobs.blobs.length === 0) {
         return {
           success: false,
-          error: 'No data found in storage',
+          error: "No data found in storage",
         };
       }
 
       const latestBlob = blobs.blobs[0];
       const response = await fetch(latestBlob.url);
-      
+
       if (!response.ok) {
-        throw new Error(`Failed to fetch latest data: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch latest data: ${response.status} ${response.statusText}`
+        );
       }
 
       const data: DailyTokenomicsData = await response.json();
-      
+
       return {
         success: true,
         data,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown retrieval error';
-      console.error('Failed to retrieve latest data:', errorMessage);
-      
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown retrieval error";
+      console.error("Failed to retrieve latest data:", errorMessage);
+
       return {
         success: false,
         error: errorMessage,
@@ -115,10 +122,12 @@ class StorageService {
     }
   }
 
-  async getDataRange(days: number): Promise<FetchResult<DailyTokenomicsData[]>> {
+  async getDataRange(
+    days: number
+  ): Promise<FetchResult<DailyTokenomicsData[]>> {
     try {
       console.log(`Fetching data for the last ${days} days`);
-      
+
       const blobs = await list({
         prefix: BLOB_CONFIG.FILE_PREFIX,
         limit: days,
@@ -127,7 +136,7 @@ class StorageService {
       if (blobs.blobs.length === 0) {
         return {
           success: false,
-          error: 'No data found in storage',
+          error: "No data found in storage",
         };
       }
 
@@ -141,18 +150,24 @@ class StorageService {
       });
 
       const data = await Promise.all(dataPromises);
-      
+
       // Sort by date (newest first)
-      data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      
+      data.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+
       return {
         success: true,
         data,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown retrieval error';
-      console.error(`Failed to retrieve data range for ${days} days:`, errorMessage);
-      
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown retrieval error";
+      console.error(
+        `Failed to retrieve data range for ${days} days:`,
+        errorMessage
+      );
+
       return {
         success: false,
         error: errorMessage,
@@ -162,8 +177,8 @@ class StorageService {
 
   async getAllData(): Promise<FetchResult<DailyTokenomicsData[]>> {
     try {
-      console.log('Fetching all available data');
-      
+      console.log("Fetching all available data");
+
       const blobs = await list({
         prefix: BLOB_CONFIG.FILE_PREFIX,
       });
@@ -171,7 +186,7 @@ class StorageService {
       if (blobs.blobs.length === 0) {
         return {
           success: false,
-          error: 'No data found in storage',
+          error: "No data found in storage",
         };
       }
 
@@ -185,18 +200,21 @@ class StorageService {
       });
 
       const data = await Promise.all(dataPromises);
-      
+
       // Sort by date (newest first)
-      data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      
+      data.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+
       return {
         success: true,
         data,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown retrieval error';
-      console.error('Failed to retrieve all data:', errorMessage);
-      
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown retrieval error";
+      console.error("Failed to retrieve all data:", errorMessage);
+
       return {
         success: false,
         error: errorMessage,
