@@ -15,14 +15,10 @@ const mockStorageService =
 describe("/api/tokenomics", () => {
   const createMockData = (date: string): DailyTokenomicsData => ({
     date,
-    total_supply: "1000000000",
-    circulating_supply: "800000000",
     burned_supply: "50000000",
     treasury_supply: "150000000",
     price_usd: 0.15,
     on_chain_liquidity_usd: 100000,
-    total_supply_usd: 150000000,
-    circulating_supply_usd: 120000000,
     burned_supply_usd: 7500000,
     treasury_supply_usd: 22500000,
   });
@@ -81,7 +77,7 @@ describe("/api/tokenomics", () => {
     expect(res._getStatusCode()).toBe(200);
 
     const responseData = JSON.parse(res._getData());
-    expect(responseData.data.total_supply).toHaveLength(2);
+    expect(responseData.data.burned_supply).toHaveLength(2);
     expect(responseData.meta.days_requested).toBe(30);
   });
 
@@ -197,23 +193,32 @@ describe("/api/tokenomics", () => {
     expect(responseData).toHaveProperty("meta");
 
     // Check data arrays
-    expect(responseData.data).toHaveProperty("total_supply");
-    expect(responseData.data).toHaveProperty("circulating_supply");
     expect(responseData.data).toHaveProperty("burned_supply");
     expect(responseData.data).toHaveProperty("treasury_supply");
     expect(responseData.data).toHaveProperty("price_usd");
     expect(responseData.data).toHaveProperty("on_chain_liquidity_usd");
 
     // Check data format
-    expect(responseData.data.total_supply[0]).toEqual({
+    expect(responseData.data.burned_supply[0]).toEqual({
       date: "2025-09-12",
-      value: "1000000000",
-      value_usd: 150000000,
+      amount: "50000000",
+      value_usd: 7500000,
+    });
+
+    expect(responseData.data.treasury_supply[0]).toEqual({
+      date: "2025-09-12",
+      amount: "150000000",
+      value_usd: 22500000,
     });
 
     expect(responseData.data.price_usd[0]).toEqual({
       date: "2025-09-12",
-      value: 0.15,
+      value_usd: 0.15,
+    });
+
+    expect(responseData.data.on_chain_liquidity_usd[0]).toEqual({
+      date: "2025-09-12",
+      value_usd: 100000,
     });
 
     // Check meta

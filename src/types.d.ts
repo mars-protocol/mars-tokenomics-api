@@ -16,10 +16,14 @@ interface DailyTokenomicsData {
 
 interface TokenomicsResponse {
   data: {
-    burned_supply: Array<{ date: string; value: string; value_usd?: number }>;
-    treasury_supply: Array<{ date: string; value: string; value_usd?: number }>;
-    price_usd: Array<{ date: string; value: number }>;
-    on_chain_liquidity_usd: Array<{ date: string; value: number }>;
+    burned_supply: Array<{ date: string; amount: string; value_usd?: number }>;
+    treasury_supply: Array<{
+      date: string;
+      amount: string;
+      value_usd?: number;
+    }>;
+    price_usd: Array<{ date: string; value_usd: number }>;
+    on_chain_liquidity_usd: Array<{ date: string; value_usd: number }>;
   };
   meta: {
     token: TokenConfig;

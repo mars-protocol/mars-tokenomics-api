@@ -52,27 +52,27 @@ curl "https://tokenomics.marsprotocol.io/api/tokenomics?days=30"
     "burned_supply": [
       {
         "date": "2025-09-12",
-        "value": "50000000",
-        "value_usd": 7500000
+        "amount": "50000000",
+        "value_usd": 7500000.0
       }
     ],
     "treasury_supply": [
       {
         "date": "2025-09-12",
-        "value": "150000000",
-        "value_usd": 22500000
+        "amount": "150000000",
+        "value_usd": 22500000.0
       }
     ],
     "price_usd": [
       {
         "date": "2025-09-12",
-        "value": 0.15
+        "value_usd": 0.15
       }
     ],
     "on_chain_liquidity_usd": [
       {
         "date": "2025-09-12",
-        "value": 100000
+        "value_usd": 100000.0
       }
     ]
   },

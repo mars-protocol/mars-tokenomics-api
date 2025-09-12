@@ -58,21 +58,21 @@ export default async function handler(
       data: {
         burned_supply: data.map((d) => ({
           date: d.date,
-          value: d.burned_supply,
-          value_usd: d.burned_supply_usd,
+          amount: d.burned_supply,
+          value_usd: Math.round(d.burned_supply_usd * 100) / 100,
         })),
         treasury_supply: data.map((d) => ({
           date: d.date,
-          value: d.treasury_supply,
-          value_usd: d.treasury_supply_usd,
+          amount: d.treasury_supply,
+          value_usd: Math.round(d.treasury_supply_usd * 100) / 100,
         })),
         price_usd: data.map((d) => ({
           date: d.date,
-          value: d.price_usd,
+          value_usd: d.price_usd,
         })),
         on_chain_liquidity_usd: data.map((d) => ({
           date: d.date,
-          value: d.on_chain_liquidity_usd,
+          value_usd: Math.round(d.on_chain_liquidity_usd * 100) / 100,
         })),
       },
       meta: {
