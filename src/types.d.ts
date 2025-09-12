@@ -28,8 +28,7 @@ interface TokenomicsResponse {
   };
   meta: {
     token: TokenConfig;
-    last_updated: string; // Date of the most recent data point
-    data_last_updated: string; // ISO timestamp of when data was actually fetched/stored
+    last_updated: string; // ISO timestamp of when data was actually fetched/stored
     total_records: number;
     days_requested: number;
   };

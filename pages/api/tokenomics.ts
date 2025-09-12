@@ -65,7 +65,8 @@ export default async function handler(
 
     // Find the most recent data update timestamp
     const mostRecentUpdate = data.reduce((latest, current) => {
-      const currentTimestamp = current.updated_at || current.date + "T00:00:00.000Z";
+      const currentTimestamp =
+        current.updated_at || current.date + "T00:00:00.000Z";
       const latestTimestamp = latest || "1970-01-01T00:00:00.000Z";
       return currentTimestamp > latestTimestamp ? currentTimestamp : latest;
     }, "" as string);
@@ -94,8 +95,7 @@ export default async function handler(
       },
       meta: {
         token: MARS_TOKEN,
-        last_updated: data[0]?.date || new Date().toISOString().split("T")[0],
-        data_last_updated: mostRecentUpdate || new Date().toISOString(),
+        last_updated: mostRecentUpdate || new Date().toISOString(),
         total_records: data.length,
         days_requested:
           daysParam === "all" ? data.length : parseInt(daysParam, 10),
