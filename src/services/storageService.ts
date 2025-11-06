@@ -138,20 +138,58 @@ class StorageService {
     try {
       console.log(`Fetching data for the last ${days} days`);
 
-      const blobs = await list({
+      const initialListResult = await list({
         prefix: BLOB_CONFIG.FILE_PREFIX,
-        limit: days,
       });
 
-      if (blobs.blobs.length === 0) {
+      if (initialListResult.blobs.length === 0) {
         return {
           success: false,
           error: "No data found in storage",
         };
       }
 
+      const allBlobs = [...initialListResult.blobs];
+      let cursor = initialListResult.cursor;
+
+      while (cursor) {
+        const nextPage = await list({
+          prefix: BLOB_CONFIG.FILE_PREFIX,
+          cursor,
+        });
+        allBlobs.push(...nextPage.blobs);
+        cursor = nextPage.cursor;
+      }
+
+      const sortedBlobs = allBlobs.sort((a, b) => {
+        const getDateFromBlob = (blob: (typeof allBlobs)[number]) => {
+          const pathname =
+            "pathname" in blob && blob.pathname
+              ? blob.pathname
+              : new URL(blob.url).pathname;
+          const fileName = pathname.split("/").pop() ?? "";
+          const datePart = fileName
+            .replace(`${BLOB_CONFIG.FILE_PREFIX}-`, "")
+            .replace(".json", "");
+          return datePart;
+        };
+
+        const dateA = getDateFromBlob(a);
+        const dateB = getDateFromBlob(b);
+        return dateB.localeCompare(dateA);
+      });
+
+      const recentBlobs = sortedBlobs.slice(0, days);
+
+      if (recentBlobs.length === 0) {
+        return {
+          success: false,
+          error: "Insufficient data available for requested range",
+        };
+      }
+
       // Fetch all data concurrently
-      const dataPromises = blobs.blobs.map(async (blob) => {
+      const dataPromises = recentBlobs.map(async (blob) => {
         const response = await fetch(blob.url);
         if (!response.ok) {
           throw new Error(`Failed to fetch data from ${blob.url}`);
